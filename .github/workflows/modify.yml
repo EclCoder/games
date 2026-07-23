@@ -16,6 +16,7 @@ jobs:
  
       - name: Delete files
         run: |
+          rm -rf a1
 
       - name: Commit
         run: |
