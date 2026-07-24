@@ -9,5 +9,6 @@ jobs:
 
     steps:
 
-      - run: |
+      - name: Test 1
+        run: |
         echo "Hello World!"
