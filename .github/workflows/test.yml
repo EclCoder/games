@@ -1,13 +1,101 @@
-name: Test
+name: Download ECL Beta
 
 on:
   workflow_dispatch:
 
 jobs:
-  test:
+  download:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Test 1
+      - name: Install dependencies
         run: |
-          echo "Hello World!"
+          python3 -m pip install requests
+
+      - name: Get MediaFire direct link
+        run: |
+          python3 <<'PY'
+          import requests
+          import re
+          import html
+
+          page_url = "https://www.mediafire.com/file/xz9p22me8e2ipbo/ECL_BETA_60FPS.apk/file"
+
+          headers = {
+              "User-Agent": (
+                  "Mozilla/5.0 (X11; Linux x86_64) "
+                  "AppleWebKit/537.36 "
+                  "(KHTML, like Gecko) "
+                  "Chrome/139.0 Safari/537.36"
+              )
+          }
+
+          r = requests.get(
+              page_url,
+              headers=headers,
+              timeout=30
+          )
+
+          r.raise_for_status()
+
+          page = html.unescape(r.text)
+
+          # MediaFire thường chứa direct URL trong HTML/JavaScript.
+          patterns = [
+              r'https://download[^"\'\\ ]+',
+              r'https:\\/\\/download[^"\' ]+',
+          ]
+
+          direct_url = None
+
+          for pattern in patterns:
+              matches = re.findall(pattern, page)
+
+              if matches:
+                  direct_url = matches[0]
+                  direct_url = direct_url.replace("\\/", "/")
+                  break
+
+          if not direct_url:
+              print("Không tìm thấy direct download URL.")
+              print("HTTP status:", r.status_code)
+              print("Page size:", len(page))
+              raise SystemExit(1)
+
+          print("Direct download URL:")
+          print(direct_url)
+
+          # Gửi URL sang bước tiếp theo
+          with open("mediafire_url.txt", "w") as f:
+              f.write(direct_url)
+          PY
+
+      - name: Download APK
+        run: |
+          URL="$(cat mediafire_url.txt)"
+
+          echo "Downloading..."
+
+          curl \
+            -L \
+            --fail \
+            --retry 3 \
+            --retry-delay 2 \
+            -A "Mozilla/5.0" \
+            "$URL" \
+            -o ECL_BETA_60FPS.apk
+
+      - name: Verify APK
+        run: |
+          echo "File information:"
+          ls -lh ECL_BETA_60FPS.apk
+          file ECL_BETA_60FPS.apk
+
+          echo "APK size:"
+          du -h ECL_BETA_60FPS.apk
+
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ECL-BETA-60FPS
+          path: ECL_BETA_60FPS.apk
