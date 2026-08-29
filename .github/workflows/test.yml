@@ -1,17 +1,16 @@
-name: Download ECL Beta
+name: Download ECL Beta APK
 
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  download:
+  download-and-upload:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install dependencies
-        run: |
-          python3 -m pip install requests
-
       - name: Get MediaFire direct link
         run: |
           python3 <<'PY'
@@ -30,17 +29,16 @@ jobs:
               )
           }
 
-          r = requests.get(
+          response = requests.get(
               page_url,
               headers=headers,
               timeout=30
           )
 
-          r.raise_for_status()
+          response.raise_for_status()
 
-          page = html.unescape(r.text)
+          page = html.unescape(response.text)
 
-          # MediaFire thường chứa direct URL trong HTML/JavaScript.
           patterns = [
               r'https://download[^"\'\\ ]+',
               r'https:\\/\\/download[^"\' ]+',
@@ -58,14 +56,13 @@ jobs:
 
           if not direct_url:
               print("Không tìm thấy direct download URL.")
-              print("HTTP status:", r.status_code)
+              print("HTTP status:", response.status_code)
               print("Page size:", len(page))
               raise SystemExit(1)
 
-          print("Direct download URL:")
+          print("Direct URL:")
           print(direct_url)
 
-          # Gửi URL sang bước tiếp theo
           with open("mediafire_url.txt", "w") as f:
               f.write(direct_url)
           PY
@@ -73,8 +70,6 @@ jobs:
       - name: Download APK
         run: |
           URL="$(cat mediafire_url.txt)"
-
-          echo "Downloading..."
 
           curl \
             -L \
@@ -85,17 +80,13 @@ jobs:
             "$URL" \
             -o ECL_BETA_60FPS.apk
 
-      - name: Verify APK
-        run: |
-          echo "File information:"
           ls -lh ECL_BETA_60FPS.apk
           file ECL_BETA_60FPS.apk
 
-          echo "APK size:"
-          du -h ECL_BETA_60FPS.apk
-
-      - name: Upload APK as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ECL-BETA-60FPS
-          path: ECL_BETA_60FPS.apk
+      - name: Upload APK to Draft Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload v1.9 \
+            ECL_BETA_60FPS.apk \
+            --repo "${{ github.repository }}"
