@@ -1,7 +1,7 @@
 name: Download and Check APK
 
 on:
-  workflow_dispatch:
+  push:
 
 jobs:
   download-check:
