@@ -12,7 +12,7 @@ jobs:
         run: |
           curl -L --fail --retry 3 \
             -o app.apk \
-            "https://download.gamercdn.top/download/vn-video-editor-1-v2.9.1-MOD-gamekillerapp.com.apk"
+            "https://get.alightmotionsapps.com/Alight_Motion_Mod-v5.0.281.apk"
 
       - name: Show APK information
         run: |
