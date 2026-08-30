@@ -75,19 +75,35 @@ jobs:
         env:
           VT_API_KEY: ${{ secrets.VT_API_KEY }}
         run: |
-          echo "=== Uploading to VirusTotal ==="
+          echo "=== Getting VirusTotal upload URL ==="
+
+          UPLOAD_URL=$(curl --fail \
+            --request GET \
+            --url "https://www.virustotal.com/api/v3/files/upload_url" \
+            --header "x-apikey: ${VT_API_KEY}" \
+            | jq -r '.data')
+
+          if [ -z "$UPLOAD_URL" ] || [ "$UPLOAD_URL" = "null" ]; then
+            echo "Failed to get VirusTotal upload URL."
+            exit 1
+          fi
+
+          echo "Upload URL obtained."
+
+          echo "=== Uploading APK ==="
 
           RESPONSE=$(curl --fail \
             --request POST \
-            --url "https://www.virustotal.com/api/v3/files" \
+            --url "$UPLOAD_URL" \
             --header "x-apikey: ${VT_API_KEY}" \
             --form "file=@app.apk")
+
+          echo "$RESPONSE"
 
           ANALYSIS_ID=$(echo "$RESPONSE" | jq -r '.data.id')
 
           if [ "$ANALYSIS_ID" = "null" ] || [ -z "$ANALYSIS_ID" ]; then
             echo "Failed to get VirusTotal analysis ID."
-            echo "$RESPONSE"
             exit 1
           fi
 
