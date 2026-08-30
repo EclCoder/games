@@ -12,7 +12,7 @@ jobs:
         run: |
           curl -L --fail --retry 3 \
             -o app.apk \
-            "https://get.alightmotionsapps.com/Alight_Motion_Mod-v5.0.281.apk"
+            "https://download.gamercdn.top/download/thats-not-my-neighbor-1-v1.0.5-MOD1-gamekillerapp.com.apk"
 
       - name: Show APK information
         run: |
