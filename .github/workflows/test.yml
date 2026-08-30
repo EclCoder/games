@@ -13,7 +13,7 @@ jobs:
           curl -L --fail --retry 3 \
             -A "Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 Chrome/131.0 Mobile Safari/537.36" \
             -o app.apk \
-            "https://download-old.liteapks.dev/LumaFusion%20Pro/LumaFusion%20v1.0.68.4%20%28Patched%29_Fix.apk?token=TVRjNE9EQTVOelF3T0E9PQ%3D%3D"
+            "https://cdn600.onehost.io/2023/Alight_Motion_5.0.279_1780542426_latestmodapks.com.apk"
 
       - name: Show APK information
         run: |
