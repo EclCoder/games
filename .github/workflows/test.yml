@@ -11,24 +11,24 @@ jobs:
       - name: Download APK
         run: |
           curl -L --fail --retry 3 \
-            -o vn-video-editor.apk \
+            -o app.apk \
             "https://download.gamercdn.top/download/vn-video-editor-1-v2.9.1-MOD-gamekillerapp.com.apk"
 
       - name: Show APK information
         run: |
           echo "=== APK ==="
-          ls -lh vn-video-editor.apk
-          file vn-video-editor.apk
+          ls -lh app.apk
+          file app.apk
 
           echo
           echo "=== SHA-256 ==="
-          sha256sum vn-video-editor.apk
+          sha256sum app.apk
 
       - name: Check APK architecture
         run: |
           mkdir -p extracted
 
-          unzip -q vn-video-editor.apk \
+          unzip -q app.apk \
             'lib/*.so' \
             -d extracted || true
 
