@@ -12,7 +12,7 @@ jobs:
         run: |
           curl -L --fail --retry 3 \
             -o app.apk \
-            "https://archive.org/download/alight-motion-v-5.0.249.1002172/Alight_Motion_v5.0.249.1002172.apk"
+            "https://archive.org/download/kinemaster-pro-v-4.13.4-techyminati.com/Kinemaster%20Pro%20v4.13.4%20%5Btechyminati.com%5D.apk"
 
       - name: Show APK information
         run: |
