@@ -1,92 +1,71 @@
-name: Download ECL Beta APK
+name: Download and Check APK
 
 on:
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
-  download-and-upload:
+  download-check:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get MediaFire direct link
-        run: |
-          python3 <<'PY'
-          import requests
-          import re
-          import html
-
-          page_url = "https://www.mediafire.com/file/xz9p22me8e2ipbo/ECL_BETA_60FPS.apk/file"
-
-          headers = {
-              "User-Agent": (
-                  "Mozilla/5.0 (X11; Linux x86_64) "
-                  "AppleWebKit/537.36 "
-                  "(KHTML, like Gecko) "
-                  "Chrome/139.0 Safari/537.36"
-              )
-          }
-
-          response = requests.get(
-              page_url,
-              headers=headers,
-              timeout=30
-          )
-
-          response.raise_for_status()
-
-          page = html.unescape(response.text)
-
-          patterns = [
-              r'https://download[^"\'\\ ]+',
-              r'https:\\/\\/download[^"\' ]+',
-          ]
-
-          direct_url = None
-
-          for pattern in patterns:
-              matches = re.findall(pattern, page)
-
-              if matches:
-                  direct_url = matches[0]
-                  direct_url = direct_url.replace("\\/", "/")
-                  break
-
-          if not direct_url:
-              print("Không tìm thấy direct download URL.")
-              print("HTTP status:", response.status_code)
-              print("Page size:", len(page))
-              raise SystemExit(1)
-
-          print("Direct URL:")
-          print(direct_url)
-
-          with open("mediafire_url.txt", "w") as f:
-              f.write(direct_url)
-          PY
-
       - name: Download APK
         run: |
-          URL="$(cat mediafire_url.txt)"
+          curl -L --fail --retry 3 \
+            -o vn-video-editor.apk \
+            "https://download.gamercdn.top/download/vn-video-editor-1-v2.9.1-MOD-gamekillerapp.com.apk"
 
-          curl \
-            -L \
-            --fail \
-            --retry 3 \
-            --retry-delay 2 \
-            -A "Mozilla/5.0" \
-            "$URL" \
-            -o ECL_BETA_60FPS.apk
-
-          ls -lh ECL_BETA_60FPS.apk
-          file ECL_BETA_60FPS.apk
-
-      - name: Upload APK to Draft Release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Show APK information
         run: |
-          gh release upload v1.9 \
-            ECL_BETA_60FPS.apk \
-            --repo "${{ github.repository }}"
+          echo "=== APK ==="
+          ls -lh vn-video-editor.apk
+          file vn-video-editor.apk
+
+          echo
+          echo "=== SHA-256 ==="
+          sha256sum vn-video-editor.apk
+
+      - name: Check APK architecture
+        run: |
+          mkdir -p extracted
+
+          unzip -q vn-video-editor.apk \
+            'lib/*.so' \
+            -d extracted || true
+
+          echo "=== Native libraries ==="
+
+          if [ -d "extracted/lib" ]; then
+            find extracted/lib \
+              -type f \
+              -name "*.so" \
+              -exec file {} \;
+          else
+            echo "No native libraries found."
+          fi
+
+          echo
+          echo "=== ABI directories ==="
+
+          if [ -d "extracted/lib/armeabi-v7a" ]; then
+            echo "ARMv7 (armeabi-v7a): YES"
+          else
+            echo "ARMv7 (armeabi-v7a): NO"
+          fi
+
+          if [ -d "extracted/lib/arm64-v8a" ]; then
+            echo "ARM64 (arm64-v8a): YES"
+          else
+            echo "ARM64 (arm64-v8a): NO"
+          fi
+
+          if [ -d "extracted/lib/x86" ]; then
+            echo "x86: YES"
+          else
+            echo "x86: NO"
+          fi
+
+          if [ -d "extracted/lib/x86_64" ]; then
+            echo "x86_64: YES"
+          else
+            echo "x86_64: NO"
+          fi
