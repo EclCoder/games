@@ -12,7 +12,7 @@ jobs:
         run: |
           curl -L --fail --retry 3 \
             -o app.apk \
-            "https://archive.org/download/alight-motion-v-5.0.249.1002172/Alight_Motion_v5.0.249.1002172.apk://files.apktodo.store/Alight%20Motion_v5.0.229.1001615_mod_.apk"
+            "https://archive.org/download/alight-motion-v-5.0.249.1002172/Alight_Motion_v5.0.249.1002172.apk"
 
       - name: Show APK information
         run: |
