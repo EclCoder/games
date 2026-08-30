@@ -13,7 +13,7 @@ jobs:
           curl -L --fail --retry 3 \
             -A "Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 Chrome/131.0 Mobile Safari/537.36" \
             -o app.apk \
-            "https://files.apktodo.store/Alight%20Motion_v5.0.229.1001615_mod_.apk"
+            "https://archive.org/download/alight-motion-v-5.0.249.1002172/Alight_Motion_v5.0.249.1002172.apk://files.apktodo.store/Alight%20Motion_v5.0.229.1001615_mod_.apk"
 
       - name: Show APK information
         run: |
