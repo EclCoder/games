@@ -1,28 +1,28 @@
-name: Delete files
+name: Generate Android Signing Key
 
 on:
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
-  delete:
+  generate-keystore:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
- 
-      - name: Delete files
+      - name: Generate keystore
         run: |
-          rm -rf a1
+          keytool -genkeypair \
+            -v \
+            -keystore release-key.jks \
+            -alias release \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 36525 \
+            -storepass "123456" \
+            -keypass "123456" \
+            -dname "CN=MyApp, OU=Android, O=MyCompany, L=New York, ST=New York, C=US"
 
-      - name: Commit
-        run: |
-          git config user.name "DarkCode2317"
-          git config user.email "darkcode2317@gmail.com"
-          git add .
-          git commit -m "Delete files"
-          git push
-        
+      - name: Upload keystore
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-signing-key
+          path: release-key.jks
