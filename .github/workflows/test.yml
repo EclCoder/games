@@ -74,7 +74,6 @@ jobs:
         id: virustotal-upload
         env:
           VT_API_KEY: ${{ secrets.VT_API_KEY }}
-        if: false
         run: |
           echo "=== Getting VirusTotal upload URL ==="
 
